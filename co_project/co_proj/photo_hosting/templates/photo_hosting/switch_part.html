@@ -1,0 +1,119 @@
+{% if post_id == 'cols'%}
+{% load like_helper %}
+{% for item in data %}
+    <div class="container col">
+
+
+        <div class="col">
+            <div class="card shadow-sm">
+                <h3 class="card-title">{{ item.title }}</h3>
+                <img src="{{ item.avatar.url }}" class="bd-placeholder-img card-img-top" width="100%"
+                     height="225"
+                     xmlns="http://www.w3.org/2000/svg" role="img"
+                     aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
+                     focusable="false">
+
+
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">{{ item.user_id }}</h6>
+                    <p class="card-text">{{ item.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <button type="button" id="{{ item.pk }}" class="switch btn btn-sm btn-outline-secondary">
+                                View
+                            </button>
+
+                        </div>
+                        <small class="text-muted">{{ item.created_at }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endfor %}
+{% elif post_id == 'posts' or post_id == 'col' or post_id == 'likes' %}
+{% for item in data %}
+<div class="col">
+    <div class="card shadow-sm">
+        <h5 class="card-title">{{ item.title }}</h5>
+        <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
+             height="225"
+             xmlns="http://www.w3.org/2000/svg" role="img"
+             aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
+             focusable="false">
+
+
+        <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">{{ item.user }}</h6>
+            <p class="card-text">{{ item.content }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                    <button type="button" id="col" class="switch btn btn-sm btn-outline-secondary">
+                        View
+                    </button>
+                    {% is_liked_by_this_user item user as is_liked %}
+                                                {% if is_liked %}
+                                                    <button id="{{ item.pk }}" type="button"
+                                                            class="like btn btn-sm btn-dark">
+                                                        Like
+                                                    </button>
+                                                {% else %}
+                                                    <button id="{{ item.pk }}" type="button"
+                                                            class="like btn btn-sm btn-outline-secondary">
+                                                        Like
+                                                    </button>
+                                                {% endif %}
+                </div>
+                <small class="text-muted">{{ item.created_at }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('.switch').click(function () {
+            var post_id;
+            $.ajax(
+                {
+                    type: "GET",
+                    url: "{% url 'switch_data' %}",
+                    data: {
+                        post_id: $(this).attr('id')
+                    },
+                    success: function (data) {
+                        $('#container').html(data)
+
+                    }
+                })
+        });
+    </script>
+<script type="text/javascript">
+        $('.like').click(function () {
+            if($(this).attr('class') === 'like btn btn-sm btn-dark') {
+                $(this).attr('class', 'like btn btn-sm btn-outline-secondary')
+            }
+            else{
+                 $(this).attr('class', 'like btn btn-sm btn-dark')
+            }
+            var post_id;
+            $.ajax(
+                {
+
+                    type: "GET",
+                    url: "{% url 'like_post' %}",
+                    data: {
+                        post_id: $(this).attr('id')
+
+
+                    },
+                    success: function (data) {
+
+
+                    }
+                })
+        });
+    </script>
