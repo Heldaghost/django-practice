@@ -1,0 +1,59 @@
+{% load static %}
+<header class="p-3 bg-dark text-white">
+    <div class="container ">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+            </a>
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{% url 'home' %}" class="nav-link px-2 text-secondary">Home</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+                {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'profile' user_slug=user.username %}"
+                           class="nav-link px-2 text-white">Profile</a></li>
+                {% endif %}
+                <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+            </ul>
+
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
+            </form>
+            {% if request.user.is_authenticated %}
+                <ul class="nav col-12 col-lg-auto me-lg-2  mb-2 justify-content-center mb-md-0">
+                    <a href="{% url 'edit_profile' %}"><img src="{% static 'img/gear-fill.svg' %}"></a>
+                </ul>
+                <ul class="nav col-12 col-lg-auto me-lg-2  mb-2 justify-content-center mb-md-0">
+
+
+                    <div class="">
+                        <a class="btn  dropdown-toggle" data-bs-toggle="dropdown"
+                           aria-expanded="false"><img src="{% static 'img/plus-square.svg' %}"></a>
+
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                            <li>
+                                <a href="{% url 'add_page' %}" class="dropdown-item">New post</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'add_col_page' %}" class="dropdown-item">New collection</a>
+                            </li>
+                        </ul>
+                    </div>
+                    {#                    <li><a href="{% url 'add_page' %}"><img src="{% static 'img/plus-square.svg' %}"></a></li>#}
+                </ul>
+                Welcome, {{ user.first_name }} |
+                <a href="{% url 'logout' %}"><img src="{% static 'img/door-open.svg' %}"> </a>
+            {% else %}
+                <div class="text-end">
+
+                    <a class="btn btn-outline-light me-2" href="{% url 'login' %}">Login</a>
+                    <a class="btn btn-warning" href="{% url 'register' %}">Sign-up</a>
+
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</header>

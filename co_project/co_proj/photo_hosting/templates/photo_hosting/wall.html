@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load like_helper %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'inc/_sidebar.html' %}
+{% endblock %}
+
+
+
+
+
+{% block content %}
+    {#    <div class="container col-xl-10 col-xxl-8 px-4 py-5">#}
+    {#    <div class="row align-items-center g-lg-5 py-5">#}
+    {#        <div class="col-lg-7 text-center text-lg-start">#}
+    {#            <h1 class="display-4 fw-bold lh-1 mb-3">Vertically centered hero sign-up form</h1>#}
+    {#            <p class="col-lg-10 fs-4">Below is an example form built entirely with Bootstrap’s form controls. Each#}
+    {#                required form group has a validation state that can be triggered by attempting to submit the form#}
+    {#                without completing it.</p>#}
+    {#        </div>#}
+    {#        <div class="col-md-10 mx-auto col-lg-5">#}
+    {#            <form class="p-4 p-md-5 border rounded-3 bg-light">#}
+    {#                <div class="form-floating mb-3">#}
+    {#                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">#}
+    {#                    <label for="floatingInput">Email address</label>#}
+    {#                </div>#}
+    {#                <div class="form-floating mb-3">#}
+    {#                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">#}
+    {#                    <label for="floatingPassword">Password</label>#}
+    {#                </div>#}
+    {#                <div class="checkbox mb-3">#}
+    {#                    <label>#}
+    {#                        <input type="checkbox" value="remember-me"> Remember me#}
+    {#                    </label>#}
+    {#                </div>#}
+    {#                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>#}
+    {#                <hr class="my-4">#}
+    {#                <small class="text-muted">By clicking Sign up, you agree to the terms of use.</small>#}
+    {#            </form>#}
+    {#        </div>#}
+    {#    </div>#}
+    {#</div>#}
+    <div class="album py-5 bg-light">
+        <div class="row">
+            <div class="col-2 d-flex flex-column align-items-stretch align-content-lg-start flex-shrink-0 bg-white"
+                 style="width: 250px;">
+                <a href="/"
+                   class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
+                    <svg class="bi me-2" width="30" height="24">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                    <span class="fs-5 fw-semibold">Collections</span>
+                </a>
+                <div class="list-group list-group-flush border-bottom scrollarea">
+                    {% for item in cols %}
+                        <a href="#" class="list-group-item list-group-item-action active py-3 lh-tight"
+                           aria-current="true">
+                            <div class="d-flex w-100 align-items-center justify-content-between">
+                                <strong class="mb-1">{{ item.title }}</strong>
+                                <small>Posts: {{ item.posts_set.count }}</small>
+                            </div>
+                            <div class="col-10 mb-1 small">
+                                {{ item.description }}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="container col-10">
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                    {% for item in posts %}
+                        <div class="container col">
+
+
+                            <div class="col">
+                                <div class="card shadow-sm">
+                                    <h5 class="card-title">{{ item.title }}</h5>
+                                    <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
+                                         height="225"
+                                         xmlns="http://www.w3.org/2000/svg" role="img"
+                                         aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
+                                         focusable="false">
+
+
+                                    <div class="card-body">
+                                        <a href="{{ item.user.get_absolute_url }}"
+                                           class="card-subtitle mb-2 text-muted">{{ item.user }}</a>
+                                        <p class="card-text">{{ item.content }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="btn-group">
+                                                <button type="button" id="{{ item.pk }}"
+                                                        class="view_modal btn btn-sm btn-outline-secondary"
+                                                        data-bs-toggle="modal" >
+                                                    View
+                                                </button>
+                                                {% is_liked_by_this_user item user as is_liked %}
+                                                {% if is_liked %}
+                                                    <button id="{{ item.pk }}" type="button"
+                                                            class="like btn btn-sm btn-dark">
+                                                        Like
+                                                    </button>
+                                                {% else %}
+                                                    <button id="{{ item.pk }}" type="button"
+                                                            class="like btn btn-sm btn-outline-secondary">
+                                                        Like
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">{{ item.created_at }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                    <div class="modal fade " id="modal" tabindex="-1">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('.like').click(function () {
+            if ($(this).attr('class') === 'like btn btn-sm btn-dark') {
+                $(this).attr('class', 'like btn btn-sm btn-outline-secondary')
+            } else {
+                $(this).attr('class', 'like btn btn-sm btn-dark')
+            }
+            var post_id;
+            $.ajax(
+                {
+
+                    type: "GET",
+                    url: "{% url 'like_post' %}",
+                    data: {
+                        post_id: $(this).attr('id')
+
+
+                    },
+                    success: function (data) {
+
+
+                    }
+                })
+        });
+    </script>
+    <script type="text/javascript">
+        $('.view_modal').click(function () {
+            var post_id;
+            var myModal;
+            $.ajax(
+                {
+
+                    type: "GET",
+                    url: "{% url 'view_modal' %}",
+                    data: {
+                        post_id: $(this).attr('id')
+                    },
+                    success: function (data) {
+                        $('#modal').html(data)
+                        myModal = new bootstrap.Modal(document.getElementById('modal'), {
+                            keyboard: false
+                        })
+                        myModal.show()
+                    }
+                })
+        });
+    </script>
+{% endblock %}
+
+
