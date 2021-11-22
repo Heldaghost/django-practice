@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.text import slugify
 from django.contrib.auth import login, logout
@@ -24,11 +24,20 @@ from photo_hosting.models import *
 #         context['mixin_prop'] = self.get_prop()
 #         return context
 
+def add_comment(request):
+    if request.method == 'GET':
+        Comments.objects.create(user_id=request.user.pk, post_id=request.GET['post_id'],
+                                content=request.GET['comment'])
+        return render(request, 'photo_hosting/comment_list.html',
+                      context={'comments': Comments.objects.filter(post_id=request.GET['post_id'])})
+    else:
+        return HttpResponse("Request method is not a GET")
+
+
 def view_modal(request):
     if request.method == 'GET':
         post_id = request.GET['post_id']
         post = Posts.objects.get(pk=post_id)
-
         return render(request, 'photo_hosting/modal_part.html', {'post': post})
 
     else:
@@ -42,7 +51,7 @@ def like_post(request):
         if not Likes.objects.filter(user_id=request.user.pk, post_id=post_id):
             Likes.objects.create(user_id=request.user.pk, post_id=post_id)
         else:
-            like = Likes.objects.get(user_id=request.user.pk, post_id=post_id).delete()
+            Likes.objects.get(user_id=request.user.pk, post_id=post_id).delete()
 
         return HttpResponse(Likes.objects.filter(post_id=post_id).count().__str__())
 
@@ -55,6 +64,7 @@ def switch_data(request):
         # user = User.objects.get(pk=1)
         # user.userprofile.likes_set.get()
         post_id = request.GET['post_id']
+        col_name = 'none'
         if post_id == 'cols':
             data = Collections.objects.filter(user_id=request.user.pk)
         elif post_id == 'posts':
@@ -63,8 +73,11 @@ def switch_data(request):
             data = Posts.objects.filter(likes__user=request.user.pk)
         elif Collections.objects.get(pk=post_id):
             data = Posts.objects.filter(collection_id=Collections.objects.get(pk=post_id))
+            col_name = Collections.objects.get(pk=post_id).title
             post_id = 'col'
-        return render(request, 'photo_hosting/switch_part.html', {'data': data, 'post_id': post_id})
+
+        return render(request, 'photo_hosting/switch_part.html',
+                      {'data': data, 'post_id': post_id, 'col_name': col_name})
 
     else:
         return HttpResponse("Request method is not a GET")
@@ -99,7 +112,11 @@ def add_col(request):
     if request.method == 'POST':
         form = AddCollectionForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.user_id = request.user.userprofile
+
+            instance.save()
+            form.save_m2m()
 
             return redirect('/')
     else:
@@ -113,7 +130,7 @@ def user_register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, 'Success registration')
+            messages.success(request, 'Succezss registration')
             return redirect('home')
         else:
             messages.error(request, 'Registration failed')

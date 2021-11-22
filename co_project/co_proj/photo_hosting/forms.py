@@ -5,6 +5,12 @@ from django.core.exceptions import ValidationError
 from photo_hosting.models import *
 
 
+class AddCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comments
+        fields = ['content']
+
+
 class EditUserForm(forms.ModelForm):
     usrname = forms.CharField(max_length=50)
 
@@ -33,6 +39,7 @@ class EditProfileForm(forms.ModelForm):
 
 
 class AddCollectionForm(forms.ModelForm):
+
     class Meta:
         model = Collections
         fields = ['title', 'description', 'avatar']
@@ -68,7 +75,7 @@ class PostsForm(forms.ModelForm):
 
     def __init__(self, user_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['collection'].queryset = Collections.objects.filter(posts__user_id=user_id).distinct()
+        self.fields['collection'].queryset = Collections.objects.filter(user_id=user_id)
         self.fields['collection'].empty_label = 'None'
 
     class Meta:

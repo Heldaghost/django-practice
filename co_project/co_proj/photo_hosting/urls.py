@@ -13,5 +13,7 @@ urlpatterns = [
     path('edit-profile', edit_profile, name='edit_profile'),
     path('switch_data/', switch_data, name='switch_data'),
     path('like_post/', like_post, name='like_post'),
-    path('view_modal/', view_modal, name='view_modal')
+    path('view_modal/', view_modal, name='view_modal'),
+    path('add_comment/', add_comment, name='add_comment'),
+
 ]

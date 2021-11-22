@@ -71,7 +71,8 @@ class Collections(models.Model):
 class Comments(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, on_delete=models.CASCADE)
-    content = models.TextField(max_length=100)
+    content = models.TextField(max_length=100, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 #
 # class Tags(models.Model):

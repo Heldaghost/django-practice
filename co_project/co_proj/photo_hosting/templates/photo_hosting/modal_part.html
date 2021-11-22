@@ -1,200 +1,95 @@
-{% load like_helper %}
+
+{% load static %}
 <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">{{ post.title }}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-7">
-                                            <div class="card" style="width: 24rem;">
-                                                <img src="{{ post.photo.url }}" class="card-img-top"
-                                                     alt="...">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">{{ post.title }}</h5>
-                                                    <p class="card-text">{{ post.content }}</p>
-                                                </div>
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item">Author: <a href="{{post.user.get_absolute_url }}">{{post.user}}</a></li>
-                                                    <li class="list-group-item">Collection: {{post.collection}}</li>
-                                                    <li class="list-group-item">Tags: {% for item in post.tags.names %}{{item}}, {% endfor %}</li>
-                                                    <li class="list-group-item">Time created: {{ post.created_at}}</li>
-                                                </ul>
-                                                <div  class="card-body">
-                                                    {% is_liked_by_this_user post user as is_liked %}
-                                                {% if is_liked %}
-                                                    <button id="{{ post.pk }}" type="button"
-                                                            class="like btn btn-sm btn-dark">
-                                                        Like
-                                                    </button>
-                                                {% else %}
-                                                    <button id="{{ post.pk }}" type="button"
-                                                            class="like btn btn-sm btn-outline-secondary">
-                                                        Like
-                                                    </button>
-                                                {% endif %}
-                                                    <a id="likes_count">{{post.likes_set.count}}</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-5 scrollarea">
-                                            <ol style="max-height: 600px;
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">{{ post.title }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-7">
+                    <div class="card" style="width: 24rem;">
+                        <img src="{{ post.photo.url }}" class="card-img-top"
+                             alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ post.title }}</h5>
+                            <p class="card-text">{{ post.content }}</p>
+                        </div>
+                        <ul class="list-group list-group-flush" style="overflow: auto;
+                                                        -webkit-overflow-scrolling: touch;">
+                            <li class="list-group-item">Author: <a
+                                    href="{{ post.user.get_absolute_url }}">{{ post.user }}</a></li>
+                            <li class="list-group-item">Collection: {{ post.collection }}</li>
+                            <li class="list-group-item">Tags:
+                                {% for item in post.tags.names %}{{ item }}, {% endfor %}</li>
+                            <li class="list-group-item">Time created: {{ post.created_at }}</li>
+                        </ul>
+
+                    </div>
+                </div>
+                <div class="col-5 scrollarea">
+                    <ol id="data-ol" style="max-height: 600px;
                                                         margin-bottom: 10px;
                                                         overflow: auto;
                                                         -webkit-overflow-scrolling: touch;"
-                                                class="list-group list-group-numbered">
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
+                        class="list-group list-group-numbered">
+                        {% for comment in post.comments_set.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">{{ comment.user }}, {{ comment.created_at }}</div>
+                                    {{ comment.content }}
 
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ol>
 
-                                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                    <div class="ms-2 me-auto">
-                                                        <div class="fw-bold">Subheading</div>
-                                                        Content for list item
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">14</span>
-                                                </li>
-                                            </ol>
-                                            <form action="POST">
-                                                <div class="mb-3">
-                                                    <label for="comment" class="form-label">Add your comment</label>
-                                                    <input type="email" class="form-control" id="exampleInputEmail1"
-                                                           aria-describedby="emailHelp">
-                                                    <div id="emailHelp" class="form-text">Length in range 1..50
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    ...
-                                </div>
+                    <form method="GET" id='post-form'>
+                        <div class="mb-3">
+                            {% csrf_token %}
+                            <label for="comment" class="form-label">Add your comment</label>
+                            <input type="text" id="comm" name="comment" class="form-control" id="comment"
+                                   aria-describedby="textHelp">
+                            <div id="textHelp" class="form-text">Length in range 1..50
                             </div>
+
+
+                            <button id="sub" type="submit" class="btn btn-primary">Submit</button>
                         </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            ...
+        </div>
+    </div>
+</div>
 
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script type="text/javascript">
-        $('.like').click(function () {
-            if ($(this).attr('class') === 'like btn btn-sm btn-dark') {
-                $(this).attr('class', 'like btn btn-sm btn-outline-secondary')
-            } else {
-                $(this).attr('class', 'like btn btn-sm btn-dark')
-            }
-            var post_id;
-            $.ajax(
-                {
+    $('#post-form').on('submit', function (event) {
+        event.preventDefault();
 
-                    type: "GET",
-                    url: "{% url 'like_post' %}",
-                    data: {
-                        post_id: $(this).attr('id')
+        var post_id;
+        $.ajax(
+            {
+                url: "{% url 'add_comment' %}",
+                type: "GET", // http method
+                data: {
+                    post_id: {{post.pk}},
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                    action: 'post',
+                    comment: $('#comm').val()
+                },
 
+                success: function (data) {
+                    $("#data-ol").html(data)
 
-                    },
-                    success: function (data) {
-                        $('#likes_count').text(data)
-
-                    }
-                })
-        });
-    </script>
+                }
+            })
+    });
+</script>

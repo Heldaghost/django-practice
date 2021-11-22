@@ -159,7 +159,7 @@
                                         <p class="card-text">{{ item.content }}</p>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary">
+                                                <button id="{{item.pk}}" type="button" class="view_modal btn btn-sm btn-outline-secondary">
                                                     View
                                                 </button>
                                                 {% is_liked_by_this_user item user as is_liked %}
@@ -175,6 +175,7 @@
                                                     </button>
                                                 {% endif %}
                                             </div>
+                                         <a id="likes_count{{item.pk}}">{{ item.likes_set.count }}</a>
                                             <small class="text-muted">{{ item.created_at }}</small>
                                         </div>
                                     </div>
@@ -186,6 +187,9 @@
                 </div>
             </div>
         </div>
+    <div class="modal fade " id="modal" tabindex="-1">
+
+                    </div>
 
     </main>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
@@ -212,32 +216,8 @@
                 })
         });
     </script>
-    <script type="text/javascript">
-        $('.like').click(function () {
-            if($(this).attr('class') === 'like btn btn-sm btn-dark') {
-                $(this).attr('class', 'like btn btn-sm btn-outline-secondary')
-            }
-            else{
-                 $(this).attr('class', 'like btn btn-sm btn-dark')
-            }
-            var post_id;
-            $.ajax(
-                {
-
-                    type: "GET",
-                    url: "{% url 'like_post' %}",
-                    data: {
-                        post_id: $(this).attr('id')
-
-
-                    },
-                    success: function (data) {
-
-
-                    }
-                })
-        });
-    </script>
+    <script src="{% static 'js/like_processing.js' %}"></script>
+     <script src="{% static 'js/view_modal.js' %}"></script>
 {% endblock %}
 
 
