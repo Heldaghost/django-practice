@@ -147,6 +147,13 @@
                             <div class="col">
                                 <div class="card shadow-sm">
                                     <h5 class="card-title">{{ item.title }}</h5>
+                                    {% if item.user_id == user.pk %}
+                                        <div class="row justify-content-md-center">
+                                            <a href="{% url 'edit_post' %}?id={{ item.pk }}" type="button"
+                                               class="col-5 btn btn-outline-secondary">Edit</a>
+                                            <a href="#" type="button" class="col-5 btn btn-outline-secondary">Delete</a>
+                                        </div>
+                                    {% endif %}
                                     <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
                                          height="225"
                                          xmlns="http://www.w3.org/2000/svg" role="img"
@@ -159,7 +166,8 @@
                                         <p class="card-text">{{ item.content }}</p>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="btn-group">
-                                                <button id="{{item.pk}}" type="button" class="view_modal btn btn-sm btn-outline-secondary">
+                                                <button id="{{ item.pk }}" type="button"
+                                                        class="view_modal btn btn-sm btn-outline-secondary">
                                                     View
                                                 </button>
                                                 {% is_liked_by_this_user item user as is_liked %}
@@ -175,7 +183,7 @@
                                                     </button>
                                                 {% endif %}
                                             </div>
-                                         <a id="likes_count{{item.pk}}">{{ item.likes_set.count }}</a>
+                                            <a id="likes_count{{ item.pk }}">{{ item.likes_set.count }}</a>
                                             <small class="text-muted">{{ item.created_at }}</small>
                                         </div>
                                     </div>
@@ -187,9 +195,9 @@
                 </div>
             </div>
         </div>
-    <div class="modal fade " id="modal" tabindex="-1">
+        <div class="modal fade " id="modal" tabindex="-1">
 
-                    </div>
+        </div>
 
     </main>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
@@ -217,7 +225,7 @@
         });
     </script>
     <script src="{% static 'js/like_processing.js' %}"></script>
-     <script src="{% static 'js/view_modal.js' %}"></script>
+    <script src="{% static 'js/view_modal.js' %}"></script>
 {% endblock %}
 
 

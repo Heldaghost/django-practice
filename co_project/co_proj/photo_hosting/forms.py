@@ -5,6 +5,36 @@ from django.core.exceptions import ValidationError
 from photo_hosting.models import *
 
 
+class EditPostForm(forms.ModelForm):
+    post_id = None
+
+    def __init__(self, post_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if post_id:
+            EditPostForm.post_id = post_id
+            post = Posts.objects.get(pk=post_id)
+            self.fields['collection'].queryset = Collections.objects.filter(
+                user_id=Posts.objects.get(pk=post_id).user_id)
+            self.fields['collection'].empty_label = 'None'
+            self.fields['title'].initial = post.title
+            self.fields['content'].initial = post.content
+            self.fields['photo'].initial = post.photo
+            self.fields['tags'].initial = post.tags.all()
+
+    def clean(self):
+        cleaned_data = super(EditPostForm, self).clean()
+        if EditPostForm.post_id:
+            cleaned_data['id'] = self.post_id
+        else:
+            raise Exception('Null post id')
+        return cleaned_data
+
+    class Meta:
+        model = Posts
+
+        fields = ['title', 'content', 'photo', 'collection', 'tags']
+
+
 class AddCommentForm(forms.ModelForm):
     class Meta:
         model = Comments
@@ -39,7 +69,6 @@ class EditProfileForm(forms.ModelForm):
 
 
 class AddCollectionForm(forms.ModelForm):
-
     class Meta:
         model = Collections
         fields = ['title', 'description', 'avatar']

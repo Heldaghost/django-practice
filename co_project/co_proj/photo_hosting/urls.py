@@ -15,5 +15,7 @@ urlpatterns = [
     path('like_post/', like_post, name='like_post'),
     path('view_modal/', view_modal, name='view_modal'),
     path('add_comment/', add_comment, name='add_comment'),
+    path('edit_post/', edit_post, name='edit_post'),
+    path('delete_post/<int:post_id>', delete_post, name='delete_post'),
 
 ]

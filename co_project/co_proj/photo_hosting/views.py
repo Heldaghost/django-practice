@@ -24,6 +24,33 @@ from photo_hosting.models import *
 #         context['mixin_prop'] = self.get_prop()
 #         return context
 
+def delete_post(request, post_id):
+    post = Posts.objects.get(pk=post_id)
+    post.delete()
+    post_set = Posts.objects.all()
+    return render(request, 'photo_hosting/switch_part.html',
+                  {'data': post_set, 'post_id': post_id, 'col_name': None})
+
+def edit_post(request):
+    if request.method == 'POST':
+        form = EditPostForm(None, request.POST, request.FILES)
+        tagslist = request.POST.get("tags")
+        tagslist = [r for r in tagslist.split(',')]
+        if form.is_valid():
+            post = get_object_or_404(Posts, pk=form.cleaned_data.get('id'))
+            post.title = form.cleaned_data.get('title')
+            post.content = form.cleaned_data.get('content')
+            post.photo = form.cleaned_data.get('photo')
+            post.collection = form.cleaned_data.get('collection')
+            post.tags = form.cleaned_data.get('tags')
+            post.save(force_update=True)
+            return redirect(reverse('profile', args=(request.user.username,)))
+    else:
+            form = EditPostForm(request.GET.get('id'))
+    return render(request, 'photo_hosting/edit_post.html',
+                  {'form': form, 'title': 'Edit post', 'post_id': request.GET.get('id')})
+
+
 def add_comment(request):
     if request.method == 'GET':
         Comments.objects.create(user_id=request.user.pk, post_id=request.GET['post_id'],
@@ -171,7 +198,7 @@ def user_profile(request, user_slug):
         age = ((datetime.now(timezone.utc) - user_info.birth_date).days / 365.25).__round__()
     else:
         age = None
-    posts = Posts.objects.filter(user__user__username=user_slug)
+    posts = Posts.objects.filter(user__user__username=user_slug).order_by('-created_at')
     context = {'posts': posts, 'info': user_info, 'title': 'Profile', 'age': age, 'sum_likes': sum(likes_for_user)}
     return render(request, 'photo_hosting/profile.html', context=context)
 
