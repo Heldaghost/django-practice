@@ -12,16 +12,53 @@
                 <li><a href="{% url 'home' %}" class="nav-link px-2 text-secondary">Home</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">About</a></li>
             </ul>
+            <div>
+                <div class="dropdown">
+                    <button id="dropbut" class="btn btn-secondary dropdown-toggle"  type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">Titles</button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li>
+                            <div class="dropdown-item form-check ">
+                                <input class="radio form-check-input" type="radio" name="flexRadioDefault"
+                                       id="flexRadioDefault1" checked>
+                                <label class="form-check-label" for="flexRadioDefault1">Titles</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="dropdown-item form-check ">
+                                <input class="radio form-check-input" type="radio" name="flexRadioDefault"
+                                       id="flexRadioDefault1">
+                                <label class="form-check-label" for="flexRadioDefault1">Collections</label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="dropdown-item form-check ">
+                                <input class="radio form-check-input" type="radio" name="flexRadioDefault"
+                                       id="flexRadioDefault1">
+                                <label class="form-check-label" for="flexRadioDefault1">Tags</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
-            </form>
+            <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><input type="search" id="search_input" class="form-control form-control-dark" placeholder="Search..."
+                               aria-label="Search"></li>
+                    <li>
+                        <button type="submit" id="search_but" class="btn btn-secondary">Search</button>
+                    </li>
+                </ul>
+            </div>
+
             {% if request.user.is_authenticated %}
                 <ul class="nav col-12 col-lg-auto me-lg-2  mb-2 justify-content-center mb-md-0">
                     <a href="{% url 'edit_profile' %}"><img src="{% static 'img/gear-fill.svg' %}"></a>
                 </ul>
                 <ul class="nav col-12 col-lg-auto me-lg-2  mb-2 justify-content-center mb-md-0">
-                <a href="{% url 'profile' user_slug=user.username %}"><img src="{% static 'img/person-circle.svg' %}"></a></ul>
+                    <a href="{% url 'profile' user_slug=user.username %}"><img
+                            src="{% static 'img/person-circle.svg' %}"></a></ul>
                 <ul class="nav col-12 col-lg-auto me-lg-2  mb-2 justify-content-center mb-md-0">
 
 
@@ -53,3 +90,10 @@
         </div>
     </div>
 </header>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $('.radio').click(function () {
+        $('#dropbut').text($(this).next().text())
+    });
+</script>
+<script src="{% static 'js/search_proc.js' %}"></script>

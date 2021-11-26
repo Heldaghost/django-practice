@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load crispy_forms_tags %}
 {% load static %}
 {% block title %}
     {{ title }}
@@ -11,17 +11,19 @@
 
 {% block content %}
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
-        <div class="container">
-            <h1>{{ title }}</h1>
+    <div class="container">
+        <div class="h-100 row align-items-center">
+
             <form action="{% url 'edit_post' %}" method="POST" enctype="multipart/form-data">
-                <div class="col-3">
+                 <div class=" col-md-4 offset-md-4">
+                    <h1>{{ title }}</h1>
                     {% csrf_token %}
                     <div class="form-error">{{ form.non_field_errors }}</div>
-                    {% for f in form %}
-                        <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>
-                        <div class="form-error">{{ f.errors }}</div>
-                    {% endfor %}
+                     {{ form|crispy }}
+{#                    {% for f in form %}#}
+{#                        <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>#}
+{#                        <div class="form-error">{{ f.errors }}</div>#}
+{#                    {% endfor %}#}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>

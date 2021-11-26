@@ -15,9 +15,8 @@ class Posts(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     photo = models.ImageField(upload_to='photos/%Y/%m/%d/')
-    is_visible = models.BooleanField(default=False)
     collection = models.ForeignKey('Collections', on_delete=models.PROTECT, blank=True, null=True)
-    user = models.ForeignKey('UserProfile', on_delete=models.PROTECT, blank=True)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True)
     # tags = models.ManyToManyField('Tags', db_table='tags_process', blank=True)
     tags = TaggableManager()
 
@@ -29,7 +28,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to='avatars/%Y/%m/%d/', blank=True)
-    birth_date = models.DateTimeField(blank=True)
+    birth_date = models.DateTimeField(blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('profile', kwargs={'user_slug': self.user.username})
@@ -44,7 +43,7 @@ class UserProfile(models.Model):
 @receiver(post_save, sender=User)
 def save_or_create_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.create(user=instance, )
     else:
         try:
             instance.userprofile.save()
@@ -53,7 +52,7 @@ def save_or_create_profile(sender, instance, created, **kwargs):
 
 
 class Likes(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, on_delete=models.CASCADE)
 
 

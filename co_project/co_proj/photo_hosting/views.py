@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-
+from django.db.models import Count
 from django.contrib import messages
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect, get_object_or_404
@@ -24,18 +24,64 @@ from photo_hosting.models import *
 #         context['mixin_prop'] = self.get_prop()
 #         return context
 
-def delete_post(request, post_id):
-    post = Posts.objects.get(pk=post_id)
-    post.delete()
-    post_set = Posts.objects.all()
+def delete_col(request):
+    col = Collections.objects.get(pk=request.GET.get('col_id'))
+    col.delete()
+    cols_set = Posts.objects.all().order_by('-created_at')
     return render(request, 'photo_hosting/switch_part.html',
-                  {'data': post_set, 'post_id': post_id, 'col_name': None})
+                  {'data': cols_set, 'post_id': 'posts', 'col_name': None})
+
+
+def edit_collection(request):
+    if request.method == 'POST':
+        form = EditColForm(None, request.POST, request.FILES)
+        if form.is_valid():
+            col = get_object_or_404(Collections, pk=form.cleaned_data.get('id'))
+            col.title = form.cleaned_data.get('title')
+            col.description = form.cleaned_data.get('description')
+            col.avatar = form.cleaned_data.get('avatar')
+            col.save(force_update=True)
+            return redirect(reverse('profile', args=(request.user.username,)))
+    else:
+        form = EditColForm(request.GET.get('id'))
+    return render(request, 'photo_hosting/edit_col.html',
+                  {'form': form, 'title': 'Edit collection', 'col_id': request.GET.get('id')})
+
+
+def search(request):
+    data = None
+    if request.method == 'GET':
+        search_item = request.GET.get('search_item')
+        search_option = request.GET.get('search_option')
+        if search_item == 'Titles':
+            data = Posts.objects.filter(title__icontains=search_option)
+            return render(request, 'photo_hosting/switch_part.html',
+                          {'data': data, 'post_id': 'posts', 'col_name': search_option})
+        elif search_item == 'Collections':
+            data = Collections.objects.filter(title__icontains=search_option)
+            return render(request, 'photo_hosting/switch_part.html',
+                          {'data': data, 'post_id': 'cols', 'col_name': search_option})
+        elif search_item == 'Tags':
+            data = Posts.objects.filter(tags__name__in=search_option.split())
+            return render(request, 'photo_hosting/switch_part.html',
+                          {'data': data, 'post_id': 'posts', 'col_name': search_option})
+    else:
+        return HttpResponse('Not get method')
+
+
+def delete_post(request):
+    post = Posts.objects.get(pk=request.GET.get('post_id'))
+    post.delete()
+    post_set = Posts.objects.all().order_by('-created_at')
+    return render(request, 'photo_hosting/switch_part.html',
+                  {'data': post_set, 'post_id': 'posts', 'col_name': None})
+
 
 def edit_post(request):
     if request.method == 'POST':
         form = EditPostForm(None, request.POST, request.FILES)
-        tagslist = request.POST.get("tags")
-        tagslist = [r for r in tagslist.split(',')]
+        # tagslist = request.POST.get("tags")
+        # tagslist = [r for r in tagslist.split(',')]
         if form.is_valid():
             post = get_object_or_404(Posts, pk=form.cleaned_data.get('id'))
             post.title = form.cleaned_data.get('title')
@@ -46,7 +92,7 @@ def edit_post(request):
             post.save(force_update=True)
             return redirect(reverse('profile', args=(request.user.username,)))
     else:
-            form = EditPostForm(request.GET.get('id'))
+        form = EditPostForm(request.GET.get('id'))
     return render(request, 'photo_hosting/edit_post.html',
                   {'form': form, 'title': 'Edit post', 'post_id': request.GET.get('id')})
 
@@ -90,21 +136,22 @@ def switch_data(request):
     if request.method == 'GET':
         # user = User.objects.get(pk=1)
         # user.userprofile.likes_set.get()
+        data = None
         post_id = request.GET['post_id']
         col_name = 'none'
         if post_id == 'cols':
-            data = Collections.objects.filter(user_id=request.user.pk)
+            data = Collections.objects.filter(user_id=request.user.pk).select_related('user_id')
         elif post_id == 'posts':
-            data = Posts.objects.filter(user_id=request.user.pk)
+            data = Posts.objects.filter(user_id=request.user.pk).order_by('-created_at').select_related('user')
         elif post_id == 'likes':
-            data = Posts.objects.filter(likes__user=request.user.pk)
+            data = Posts.objects.filter(likes__user=request.user.pk).select_related('user')
         elif Collections.objects.get(pk=post_id):
-            data = Posts.objects.filter(collection_id=Collections.objects.get(pk=post_id))
+            data = Posts.objects.filter(collection_id=Collections.objects.get(pk=post_id)).select_related('user')
             col_name = Collections.objects.get(pk=post_id).title
             post_id = 'col'
 
         return render(request, 'photo_hosting/switch_part.html',
-                      {'data': data, 'post_id': post_id, 'col_name': col_name})
+                      {'data': data, 'post_id': post_id, 'col_name': col_name, 'likes': Likes.objects.all()})
 
     else:
         return HttpResponse("Request method is not a GET")
@@ -157,7 +204,7 @@ def user_register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, 'Succezss registration')
+            messages.success(request, 'Success registration')
             return redirect('home')
         else:
             messages.error(request, 'Registration failed')
@@ -183,23 +230,45 @@ def user_logout(request):
     return redirect(to='/')
 
 
-def home_posts(request):
-    cols = Collections.objects.all()
-    posts = Posts.objects.order_by('-created_at')
+class HomePosts(ListView):
+    model = Posts
+    template_name = 'photo_hosting/wall.html'
+    context_object_name = 'posts'
+    paginate_by = 8
 
-    context = {'title': 'Wall', 'posts': posts, 'cols': cols}
-    return render(request, 'photo_hosting/wall.html', context=context)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Wall'
+        context['cols'] = Collections.objects.annotate(Count('posts'))
+        context['likes'] = Likes.objects.all()
+        return context
 
+    def get_queryset(self):
+        return Posts.objects.annotate(Count('likes')).select_related('user', ).order_by('-created_at')
+
+
+# def home_posts(request):
+#     cols = Collections.objects.all()
+#     posts = Posts.objects.order_by('-created_at')
+#
+#     context = {'title': 'Wall', 'posts': posts, 'cols': cols}
+#     return render(request, 'photo_hosting/wall.html', context=context)
+#
 
 def user_profile(request, user_slug):
     user_info = UserProfile.objects.get(user__username=user_slug)
-    likes_for_user = [item.likes_set.count() for item in user_info.posts_set.all()]
+    # likes_for_user = [item.likes_set.count() for item in request.user.posts_set.all()]
+    user = User.objects.get(username=user_slug)
     if user_info.birth_date:
         age = ((datetime.now(timezone.utc) - user_info.birth_date).days / 365.25).__round__()
     else:
         age = None
-    posts = Posts.objects.filter(user__user__username=user_slug).order_by('-created_at')
-    context = {'posts': posts, 'info': user_info, 'title': 'Profile', 'age': age, 'sum_likes': sum(likes_for_user)}
+    posts = Posts.objects.filter(user__username=user_slug).annotate(Count('likes')).order_by(
+        '-created_at').select_related('user')
+    likes_for_user = [x.likes__count for x in posts]
+    context = {'posts': posts, 'info': user_info, 'title': 'Profile', 'age': age, 'sum_likes': sum(likes_for_user),
+               'likes': Likes.objects.all(), 'us_prof': user}
+
     return render(request, 'photo_hosting/profile.html', context=context)
 
 

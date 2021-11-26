@@ -1,8 +1,34 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.exceptions import ValidationError
-
+from captcha.fields import CaptchaField
 from photo_hosting.models import *
+
+
+class EditColForm(forms.ModelForm):
+    col_id = None
+
+    def __init__(self, col_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if col_id:
+            EditColForm.col_id = col_id
+        if EditColForm.col_id:
+            col = Collections.objects.get(pk=EditColForm.col_id)
+            self.fields['title'].initial = col.title
+            self.fields['description'].initial = col.description
+            self.fields['avatar'].initial = col.avatar
+
+    def clean(self):
+        cleaned_data = super(EditColForm, self).clean()
+        if EditColForm.col_id:
+            cleaned_data['id'] = self.col_id
+        else:
+            raise Exception('Null col id')
+        return cleaned_data
+
+    class Meta:
+        model = Collections
+        fields = ['title', 'description', 'avatar']
 
 
 class EditPostForm(forms.ModelForm):
@@ -12,9 +38,10 @@ class EditPostForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if post_id:
             EditPostForm.post_id = post_id
-            post = Posts.objects.get(pk=post_id)
+        if EditPostForm.post_id:
+            post = Posts.objects.get(pk=EditPostForm.post_id)
             self.fields['collection'].queryset = Collections.objects.filter(
-                user_id=Posts.objects.get(pk=post_id).user_id)
+                user_id=Posts.objects.get(pk=EditPostForm.post_id).user_id)
             self.fields['collection'].empty_label = 'None'
             self.fields['title'].initial = post.title
             self.fields['content'].initial = post.content
@@ -57,6 +84,10 @@ class EditUserForm(forms.ModelForm):
 
 
 class EditProfileForm(forms.ModelForm):
+    birth_date = forms.DateField(label='Birth date', widget=forms.DateInput(format='%d.%m.%Y',
+                                                                            attrs={'class': 'form-control',
+                                                                                   'placeholder': 'dd.mm.yyyy'}))
+
     def __init__(self, user: User, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['description'].initial = user.userprofile.description
@@ -87,8 +118,7 @@ class UserRegisterForm(UserCreationForm):
     password2 = forms.CharField(label='Confirm password',
                                 widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
-
-    # captcha = CaptchaField()
+    captcha = CaptchaField()
 
     class Meta:
         model = User
@@ -109,7 +139,7 @@ class PostsForm(forms.ModelForm):
 
     class Meta:
         model = Posts
-        fields = ['title', 'content', 'photo', 'is_visible', 'collection', 'tags']
+        fields = ['title', 'content', 'photo', 'collection', 'tags']
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input'}),

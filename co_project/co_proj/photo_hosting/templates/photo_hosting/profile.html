@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block content %}
+    {% with is_auth=request.user.is_authenticated cur_user=user %}
     <main>
         <section class="section py-5 about-section gray-bg " id="about">
             <div class="container">
@@ -19,7 +20,7 @@
                         <div class="about-text go-to">
                             <div class="row">
                                 <h3 class="dark-color">{{ title }}</h3>
-                                <h6 class="theme-color lead">{{ info.user.first_name }} {{ info.user.last_name }} </h6>
+                                <h6 class="theme-color lead">{{ us_prof.first_name }} {{ us_prof.last_name }} </h6>
                                 {% if info.description %}
                                     <p>{{ info.description }}
                                     </p>
@@ -32,7 +33,7 @@
                                     <div class="media">
                                         <label>Birthday</label>
                                         {% if info.birth_date %}
-                                            <p>{{ info.birth_date }}</p>
+                                            <p>{{ info.birth_date|date:"SHORT_DATE_FORMAT" }}</p>
                                         {% else %}
                                             <p>Unknown</p>
                                         {% endif %}
@@ -47,21 +48,21 @@
                                     </div>
                                     <div class="media">
                                         <label>Last login</label>
-                                        <p>{{ info.user.last_login }}</p>
+                                        <p>{{ us_prof.last_login }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="media">
                                         <label>E-mail</label>
-                                        <p>{{ info.user.email }}</p>
+                                        <p>{{ us_prof.email }}</p>
                                     </div>
                                     <div class="media">
                                         <label>Date joined</label>
-                                        <p>{{ info.user.date_joined }}</p>
+                                        <p>{{ us_prof.date_joined }}</p>
                                     </div>
                                     <div class="media">
                                         <label>Privilege</label>
-                                        {% if info.user.is_superuser %}
+                                        {% if us_prof.is_superuser %}
                                             <p>Admin</p>
                                         {% else %}
                                             <p>User</p>
@@ -87,7 +88,7 @@
                     <div class="row">
                         <div class="col-6 col-lg-3">
                             <div class="count-data text-center">
-                                <h6 class="count h2" data-to="500" data-speed="500">{{ info.posts_set.count }}</h6>
+                                <h6 class="count h2" data-to="500" data-speed="500">{{ cur_user.posts_set.count }}</h6>
                                 <p class="m-0px font-w-600">Posts created</p>
                             </div>
                         </div>
@@ -99,7 +100,7 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="count-data text-center">
-                                <h6 class="count h2" data-to="850" data-speed="850">{{ info.likes_set.count }}</h6>
+                                <h6 class="count h2" data-to="850" data-speed="850">{{ cur_user.likes_set.count }}</h6>
                                 <p class="m-0px font-w-600">Likes delivered</p>
                             </div>
                         </div>
@@ -147,11 +148,11 @@
                             <div class="col">
                                 <div class="card shadow-sm">
                                     <h5 class="card-title">{{ item.title }}</h5>
-                                    {% if item.user_id == user.pk %}
+                                    {% if item.user_id == cur_user.pk %}
                                         <div class="row justify-content-md-center">
                                             <a href="{% url 'edit_post' %}?id={{ item.pk }}" type="button"
                                                class="col-5 btn btn-outline-secondary">Edit</a>
-                                            <a href="#" type="button" class="col-5 btn btn-outline-secondary">Delete</a>
+                                            <a id="{{item.pk}}"  type="button" class="del col-5 btn btn-outline-secondary">Delete</a>
                                         </div>
                                     {% endif %}
                                     <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
@@ -170,7 +171,7 @@
                                                         class="view_modal btn btn-sm btn-outline-secondary">
                                                     View
                                                 </button>
-                                                {% is_liked_by_this_user item user as is_liked %}
+                                                {% is_liked_by_this_user item cur_user likes as is_liked %}
                                                 {% if is_liked %}
                                                     <button id="{{ item.pk }}" type="button"
                                                             class="like btn btn-sm btn-dark">
@@ -183,7 +184,7 @@
                                                     </button>
                                                 {% endif %}
                                             </div>
-                                            <a id="likes_count{{ item.pk }}">{{ item.likes_set.count }}</a>
+                                            <a id="likes_count{{ item.pk }} " class="fw-bold text-reset">{{ item.likes__count }}</a>
                                             <small class="text-muted">{{ item.created_at }}</small>
                                         </div>
                                     </div>
@@ -224,8 +225,10 @@
                 })
         });
     </script>
+    <script src="{% static 'js/delete_posts.js' %}"></script>
     <script src="{% static 'js/like_processing.js' %}"></script>
     <script src="{% static 'js/view_modal.js' %}"></script>
+    {% endwith %}
 {% endblock %}
 
 

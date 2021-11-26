@@ -3,7 +3,7 @@ from django.urls import path
 from photo_hosting.views import *
 
 urlpatterns = [
-    path('', home_posts, name='home'),
+    path('', HomePosts.as_view(), name='home'),
     path('user/<slug:user_slug>', user_profile, name='profile'),
     path('add-page/', add_posts, name='add_page'),
     path('login/', user_login, name='login'),
@@ -16,6 +16,9 @@ urlpatterns = [
     path('view_modal/', view_modal, name='view_modal'),
     path('add_comment/', add_comment, name='add_comment'),
     path('edit_post/', edit_post, name='edit_post'),
-    path('delete_post/<int:post_id>', delete_post, name='delete_post'),
+    path('delete_post/', delete_post, name='delete_post'),
+    path('search/', search, name='search'),
+    path('edit_collection/', edit_collection, name='edit_collection'),
+    path('delete_cols/', delete_col, name='delete_cols'),
 
 ]

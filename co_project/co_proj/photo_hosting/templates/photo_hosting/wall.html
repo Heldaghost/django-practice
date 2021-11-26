@@ -14,40 +14,43 @@
 
 
 {% block content %}
-
-    {#    <div class="container col-xl-10 col-xxl-8 px-4 py-5">#}
-    {#    <div class="row align-items-center g-lg-5 py-5">#}
-    {#        <div class="col-lg-7 text-center text-lg-start">#}
-    {#            <h1 class="display-4 fw-bold lh-1 mb-3">Vertically centered hero sign-up form</h1>#}
-    {#            <p class="col-lg-10 fs-4">Below is an example form built entirely with Bootstrap’s form controls. Each#}
-    {#                required form group has a validation state that can be triggered by attempting to submit the form#}
-    {#                without completing it.</p>#}
-    {#        </div>#}
-    {#        <div class="col-md-10 mx-auto col-lg-5">#}
-    {#            <form class="p-4 p-md-5 border rounded-3 bg-light">#}
-    {#                <div class="form-floating mb-3">#}
-    {#                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">#}
-    {#                    <label for="floatingInput">Email address</label>#}
-    {#                </div>#}
-    {#                <div class="form-floating mb-3">#}
-    {#                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">#}
-    {#                    <label for="floatingPassword">Password</label>#}
-    {#                </div>#}
-    {#                <div class="checkbox mb-3">#}
-    {#                    <label>#}
-    {#                        <input type="checkbox" value="remember-me"> Remember me#}
-    {#                    </label>#}
-    {#                </div>#}
-    {#                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>#}
-    {#                <hr class="my-4">#}
-    {#                <small class="text-muted">By clicking Sign up, you agree to the terms of use.</small>#}
-    {#            </form>#}
-    {#        </div>#}
-    {#    </div>#}
-    {#</div>#}
-    <div class="album py-5 bg-light">
-        <div class="row">
-            <div class="col-2 d-flex flex-column align-items-stretch align-content-lg-start flex-shrink-0 bg-white"
+{% with is_auth=request.user.is_authenticated cur_user=user %}
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" >
+    {% if not is_auth %}
+        <div class="container col-xl-10 col-xxl-8 px-4 py-5">
+        <div class="row align-items-center g-lg-5 py-5">
+            <div class="col-lg-7 text-center text-lg-start">
+                <h1 class="display-4 fw-bold lh-1 mb-3">Vertically centered hero sign-up form</h1>
+                <p class="col-lg-10 fs-4">Below is an example form built entirely with Bootstrap’s form controls. Each
+                    required form group has a validation state that can be triggered by attempting to submit the form
+                    without completing it.</p>
+            </div>
+            <div class="col-md-10 mx-auto col-lg-5">
+                <form class="p-4 p-md-5 border rounded-3 bg-light">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                        <label for="floatingInput">Email address</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                        <label for="floatingPassword">Password</label>
+                    </div>
+                    <div class="checkbox mb-3">
+                        <label>
+                            <input type="checkbox" value="remember-me"> Remember me
+                        </label>
+                    </div>
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
+                    <hr class="my-4">
+                    <small class="text-muted">By clicking Sign up, you agree to the terms of use.</small>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="album py-5 bg-light ">
+        <div class="row " >
+            <div class=" border-4 text-white bg-light  bg-gradient text-white col-2 d-flex flex-column align-items-stretch align-content-lg-start flex-shrink-0  border "
                  style="width: 250px; max-height: 700px">
                 <a href="/"
                    class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
@@ -59,14 +62,14 @@
                                                         overflow: auto;
                                                         -webkit-overflow-scrolling: touch;">
                     {% for item in cols %}
-                        <a id="{{item.pk}}"  class="switch_wall list-group-item list-group-item-action active py-3 lh-tight"
+                        <a id="{{item.pk}}"  class="bg-secondary     bg-gradient switch_wall list-group-item list-group-item-action active py-3 lh-tight"
                            aria-current="true">
                             <div class="d-flex w-100 align-items-center justify-content-between">
                                 <strong class="mb-1">{{ item.title }}</strong>
-                                <small>Posts: {{ item.posts_set.count }}</small>
+                                <small>Posts: {{ item.posts__count }}</small>
                             </div>
                             <div class="col-10 mb-1 small">
-                                {{ item.user_id.user.username }}
+                                {{ item.user }}
 
                             </div>
                         </a>
@@ -98,13 +101,13 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="btn-group">
 
-                                            {% if request.user.is_authenticated %}
+                                            {% if is_auth %}
                                                 <button type="button" id="{{ item.pk }}"
                                                         class="view_modal btn btn-sm btn-outline-secondary"
                                                         data-bs-toggle="modal" >
                                                     View
                                                 </button>
-                                                {% is_liked_by_this_user item user as is_liked %}
+                                                {% is_liked_by_this_user item cur_user likes as is_liked %}
                                                 {% if is_liked %}
                                                     <button id="{{ item.pk }}"  type="button"
                                                             class="like btn btn-sm btn-dark">
@@ -117,12 +120,15 @@
                                                     </button>
                                                 {% endif %}
                                                   </div>
-                                        <a id="likes_count{{item.pk}}">{{ item.likes_set.count }}</a>
+
+                                        <a id="likes_count{{item.pk}}" class="fw-bold text-reset" >{{ item.likes__count }}</a>
+
 
                                                 {% else %}
                                                 </div>
 
-                                                 <a id="likes_count{{item.pk}}">Likes: {{ item.likes_set.count }}</a>
+                                                 <a id="likes_count{{item.pk}}">Likes: {{ item.likes__count }}</a>
+
                                             {% endif %}
 
 
@@ -135,13 +141,15 @@
 
                         </div>
                     {% endfor %}
-                    <div class="modal fade " id="modal" tabindex="-1">
+            {% endwith %}
+
 
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="modal fade " id="modal" tabindex="-1">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="{% static 'js/switch_wall.js' %}"></script>
