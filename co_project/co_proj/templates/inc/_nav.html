@@ -1,5 +1,5 @@
 {% load static %}
-<header class="p-3 bg-dark text-white">
+<header class="p-3 bg-primary text-white">
     <div class="container ">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
             <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
@@ -9,12 +9,15 @@
             </a>
 
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="{% url 'home' %}" class="nav-link px-2 text-secondary">Home</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+                <li><img src="{% static 'img/camera2.svg' %}"></li>
+                <li><a href="{% url 'home' %}" class="nav-link px-2 text-white">Home</a></li>
+                {% if user.is_admin or user.is_staff %}
+                    <li><a href="admin/" class="nav-link px-2 text-white">Admin panel</a></li>
+                {% endif %}
             </ul>
             <div>
                 <div class="dropdown">
-                    <button id="dropbut" class="btn btn-secondary dropdown-toggle"  type="button"
+                    <button id="dropbut" class="btn btn-secondary dropdown-toggle" type="button"
                             data-bs-toggle="dropdown" aria-expanded="false">Titles</button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                         <li>
@@ -42,9 +45,10 @@
                 </div>
             </div>
 
-            <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+            <div class="col-6 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><input type="search" id="search_input" class="form-control form-control-dark" placeholder="Search..."
+                    <li><input type="search" id="search_input" class="form-control form-control-dark"
+                               placeholder="Search..."
                                aria-label="Search"></li>
                     <li>
                         <button type="submit" id="search_but" class="btn btn-secondary">Search</button>
@@ -90,8 +94,10 @@
         </div>
     </div>
 </header>
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript">
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript">
     $('.radio').click(function () {
         $('#dropbut').text($(this).next().text())
     });

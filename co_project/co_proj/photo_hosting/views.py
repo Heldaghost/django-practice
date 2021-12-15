@@ -24,12 +24,28 @@ from photo_hosting.models import *
 #         context['mixin_prop'] = self.get_prop()
 #         return context
 
+
+def like_col(request):
+    if request.method == 'GET':
+
+        col_id = request.GET['coll_id']
+        if not FavCollections.objects.filter(user_id=request.user.pk, col_id=col_id):
+            FavCollections.objects.create(user_id=request.user.pk, col_id=col_id)
+        else:
+            FavCollections.objects.get(user_id=request.user.pk, col_id=col_id).delete()
+
+        return HttpResponse(FavCollections.objects.filter(col_id=col_id).count().__str__())
+
+    else:
+        return HttpResponse("Request method is not a GET")
+
+
 def delete_col(request):
     col = Collections.objects.get(pk=request.GET.get('col_id'))
     col.delete()
-    cols_set = Posts.objects.all().order_by('-created_at')
+    cols_set = Collections.objects.filter(user_id=request.user.pk).order_by('-created_at')
     return render(request, 'photo_hosting/switch_part.html',
-                  {'data': cols_set, 'post_id': 'posts', 'col_name': None})
+                  {'data': cols_set, 'post_id': 'cols'})
 
 
 def edit_collection(request):
@@ -51,12 +67,13 @@ def edit_collection(request):
 def search(request):
     data = None
     if request.method == 'GET':
+        likes = Likes.objects.all()
         search_item = request.GET.get('search_item')
         search_option = request.GET.get('search_option')
         if search_item == 'Titles':
             data = Posts.objects.filter(title__icontains=search_option)
             return render(request, 'photo_hosting/switch_part.html',
-                          {'data': data, 'post_id': 'posts', 'col_name': search_option})
+                          {'data': data, 'post_id': 'posts', 'col_name': search_option, 'likes': likes})
         elif search_item == 'Collections':
             data = Collections.objects.filter(title__icontains=search_option)
             return render(request, 'photo_hosting/switch_part.html',
@@ -64,7 +81,7 @@ def search(request):
         elif search_item == 'Tags':
             data = Posts.objects.filter(tags__name__in=search_option.split())
             return render(request, 'photo_hosting/switch_part.html',
-                          {'data': data, 'post_id': 'posts', 'col_name': search_option})
+                          {'data': data, 'post_id': 'posts', 'col_name': search_option, 'likes': likes})
     else:
         return HttpResponse('Not get method')
 
@@ -72,9 +89,9 @@ def search(request):
 def delete_post(request):
     post = Posts.objects.get(pk=request.GET.get('post_id'))
     post.delete()
-    post_set = Posts.objects.all().order_by('-created_at')
+    post_set = Posts.objects.filter(user_id=request.user.pk).order_by('-created_at')
     return render(request, 'photo_hosting/switch_part.html',
-                  {'data': post_set, 'post_id': 'posts', 'col_name': None})
+                  {'data': post_set, 'post_id': 'posts'})
 
 
 def edit_post(request):
@@ -138,20 +155,32 @@ def switch_data(request):
         # user.userprofile.likes_set.get()
         data = None
         post_id = request.GET['post_id']
-        col_name = 'none'
+        col_name = None
         if post_id == 'cols':
-            data = Collections.objects.filter(user_id=request.user.pk).select_related('user_id')
+            data = Collections.objects.filter(user_id=request.user.userprofile.pk).annotate(
+                Count('posts')).select_related('user_id')
+        elif post_id == 'fav':
+            print(FavCollections.objects.all().values('user_id'))
+            data = Collections.objects.filter(
+                pk__in=FavCollections.objects.filter(user_id=request.user.pk).values('col_id')).annotate(
+                Count('posts')).select_related('user_id')
+            print(data)
+            post_id = 'cols'
         elif post_id == 'posts':
-            data = Posts.objects.filter(user_id=request.user.pk).order_by('-created_at').select_related('user')
+            data = Posts.objects.filter(user_id=request.user.pk).order_by('-created_at').annotate(
+                Count('likes')).prefetch_related('user__userprofile')
         elif post_id == 'likes':
-            data = Posts.objects.filter(likes__user=request.user.pk).select_related('user')
+            data = Posts.objects.filter(likes__user=request.user.pk).annotate(Count('likes')).prefetch_related(
+                'user__userprofile')
         elif Collections.objects.get(pk=post_id):
-            data = Posts.objects.filter(collection_id=Collections.objects.get(pk=post_id)).select_related('user')
+            data = Posts.objects.filter(collection_id=Collections.objects.get(pk=post_id)).prefetch_related(
+                'user__userprofile')
             col_name = Collections.objects.get(pk=post_id).title
             post_id = 'col'
 
         return render(request, 'photo_hosting/switch_part.html',
-                      {'data': data, 'post_id': post_id, 'col_name': col_name, 'likes': Likes.objects.all()})
+                      {'data': data, 'post_id': post_id, 'col_name': col_name, 'likes': Likes.objects.all(),
+                       'likes_col': FavCollections.objects.all()})
 
     else:
         return HttpResponse("Request method is not a GET")
@@ -239,12 +268,12 @@ class HomePosts(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Wall'
-        context['cols'] = Collections.objects.annotate(Count('posts'))
+        context['cols'] = Collections.objects.annotate(Count('posts'))[:9]
         context['likes'] = Likes.objects.all()
         return context
 
     def get_queryset(self):
-        return Posts.objects.annotate(Count('likes')).select_related('user', ).order_by('-created_at')
+        return Posts.objects.annotate(Count('likes')).prefetch_related('user__userprofile', ).order_by('-created_at')
 
 
 # def home_posts(request):

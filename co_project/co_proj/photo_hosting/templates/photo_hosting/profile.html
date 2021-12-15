@@ -11,223 +11,255 @@
 
 {% block content %}
     {% with is_auth=request.user.is_authenticated cur_user=user %}
-    <main>
-        <section class="section py-5 about-section gray-bg " id="about">
-            <div class="container">
-                <div class="row align-items-center flex-row-reverse">
+        <main>
+            <section class="section py-5 about-section gray-bg " id="about">
+                <div class="container">
+                    <div class="row align-items-center flex-row-reverse">
 
-                    <div class="col-lg-6">
-                        <div class="about-text go-to">
-                            <div class="row">
-                                <h3 class="dark-color">{{ title }}</h3>
-                                <h6 class="theme-color lead">{{ us_prof.first_name }} {{ us_prof.last_name }} </h6>
-                                {% if info.description %}
-                                    <p>{{ info.description }}
-                                    </p>
+                        <div class="col-lg-6">
+                            <div class="about-text go-to">
+                                <div class="row">
+                                    <h3 class="dark-color">{{ title }}</h3>
+                                    <h6 class="theme-color lead">{{ us_prof.first_name }} {{ us_prof.last_name }} </h6>
+                                    {% if info.description %}
+                                        <p>{{ info.description }}
+                                        </p>
+                                    {% else %}
+                                        <p>No description</p>
+                                    {% endif %}
+                                </div>
+                                <div class="row about-list">
+                                    <div class="col-md-6">
+                                        <div class="media">
+                                            <label>Birthday</label>
+                                            {% if info.birth_date %}
+                                                <p>{{ info.birth_date|date:"SHORT_DATE_FORMAT" }}</p>
+                                            {% else %}
+                                                <p>Unknown</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="media">
+                                            <label>Age</label>
+                                            {% if age %}
+                                                <p>{{ age }}</p>
+                                            {% else %}
+                                                <p>Secret</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="media">
+                                            <label>Last login</label>
+                                            <p>{{ us_prof.last_login }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="media">
+                                            <label>E-mail</label>
+                                            <p>{{ us_prof.email }}</p>
+                                        </div>
+                                        <div class="media">
+                                            <label>Date joined</label>
+                                            <p>{{ us_prof.date_joined }}</p>
+                                        </div>
+                                        <div class="media">
+                                            <label>Privilege</label>
+                                            {% if us_prof.is_superuser %}
+                                                <p>Admin</p>
+                                            {% else %}
+                                                <p>User</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5 ">
+                            <div class="about-avatar ">
+                                {% if info.avatar and not info.avatar == 'False' %}
+                                    <img class="card shadow-lg" src="{{ info.avatar.url }}" title="" alt="">
                                 {% else %}
-                                    <p>No description</p>
+                                    <img class="card shadow-lg" src="{% static 'img/default_avatar.png' %}" title="" alt="">
                                 {% endif %}
                             </div>
-                            <div class="row about-list">
-                                <div class="col-md-6">
-                                    <div class="media">
-                                        <label>Birthday</label>
-                                        {% if info.birth_date %}
-                                            <p>{{ info.birth_date|date:"SHORT_DATE_FORMAT" }}</p>
-                                        {% else %}
-                                            <p>Unknown</p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="media">
-                                        <label>Age</label>
-                                        {% if age %}
-                                            <p>{{ age }}</p>
-                                        {% else %}
-                                            <p>Secret</p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="media">
-                                        <label>Last login</label>
-                                        <p>{{ us_prof.last_login }}</p>
-                                    </div>
+                        </div>
+
+                    </div>
+                    <div class="counter">
+                        <div class="row">
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center">
+                                    <h6 class="count h2" data-to="500"
+                                        data-speed="500">{{ cur_user.posts_set.count }}</h6>
+                                    <p class="m-0px font-w-600">Posts created</p>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="media">
-                                        <label>E-mail</label>
-                                        <p>{{ us_prof.email }}</p>
-                                    </div>
-                                    <div class="media">
-                                        <label>Date joined</label>
-                                        <p>{{ us_prof.date_joined }}</p>
-                                    </div>
-                                    <div class="media">
-                                        <label>Privilege</label>
-                                        {% if us_prof.is_superuser %}
-                                            <p>Admin</p>
-                                        {% else %}
-                                            <p>User</p>
-                                        {% endif %}
-                                    </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center">
+                                    <h6 class="count h2" data-to="150"
+                                        data-speed="150">{{ info.comments_set.count }}</h6>
+                                    <p class="m-0px font-w-600">Comments written</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center">
+                                    <h6 class="count h2" data-to="850"
+                                        data-speed="850">{{ cur_user.likes_set.count }}</h6>
+                                    <p class="m-0px font-w-600">Likes delivered</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center">
+                                    <h6 class="count h2" data-to="190" data-speed="190">{{ sum_likes }}</h6>
+                                    <p class="m-0px font-w-600">Likes achieved</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="counter">
+                        <div class="row">
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center d-grid gap-2">
+                                    <a id="posts" class="switch btn btn-secondary btn-lg">Posts</a>
+                                    <p id="arrow_hf"><img src="{% static 'img/arrow-down.svg' %}"></p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center d-grid gap-2">
+                                    <a id="cols" class="switch btn btn-light btn-lg">Collections</a>
 
-                    <div class="col-lg-5">
-                        <div class="about-avatar">
-                            {% if info.avatar and not info.avatar == 'False' %}
-                                <img src="{{ info.avatar.url }}" title="" alt="">
-                            {% else %}
-                                <img src="{% static 'img/default_avatar.png' %}" title="" alt="">
-                            {% endif %}
-                        </div>
-                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center d-grid gap-2">
+                                    <a id="likes" class="switch btn btn-light btn-lg">You liked</a>
 
-                </div>
-                <div class="counter">
-                    <div class="row">
-                        <div class="col-6 col-lg-3">
-                            <div class="count-data text-center">
-                                <h6 class="count h2" data-to="500" data-speed="500">{{ cur_user.posts_set.count }}</h6>
-                                <p class="m-0px font-w-600">Posts created</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-6 col-lg-3">
-                            <div class="count-data text-center">
-                                <h6 class="count h2" data-to="150" data-speed="150">{{ info.comments_set.count }}</h6>
-                                <p class="m-0px font-w-600">Comments written</p>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-3">
-                            <div class="count-data text-center">
-                                <h6 class="count h2" data-to="850" data-speed="850">{{ cur_user.likes_set.count }}</h6>
-                                <p class="m-0px font-w-600">Likes delivered</p>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-3">
-                            <div class="count-data text-center">
-                                <h6 class="count h2" data-to="190" data-speed="190">{{ sum_likes }}</h6>
-                                <p class="m-0px font-w-600">Likes achieved</p>
+                            <div class="col-6 col-lg-3">
+                                <div class="count-data text-center d-grid gap-2">
+                                    <a id="fav" class="switch btn btn-light btn-lg">Favourites</a>
+
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="counter">
-                    <div class="row">
-                        <div class="col-6 col-lg-4">
-                            <div class="count-data text-center d-grid gap-2">
-                                <a id="posts" class="switch btn btn-secondary btn-lg">Posts</a>
-                                <p id="arrow_hf"><img src="{% static 'img/arrow-down.svg' %}"></p>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4">
-                            <div class="count-data text-center d-grid gap-2">
-                                <a id="cols" class="switch btn btn-light btn-lg">Collections</a>
-
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4">
-                            <div class="count-data text-center d-grid gap-2">
-                                <a id="likes" class="switch btn btn-light btn-lg">You liked</a>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <div class="album py-5 bg-light">
-            <div class="container">
+            </section>
+            <div class="card album py-5 ">
+                <div class="container">
 
 
-                <div id="container" class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
-                    {% for item in posts %}
-                        <div class="container col">
+                    <div id="container" class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                        {% for item in posts %}
+                            <div class="container col">
 
 
-                            <div class="col">
-                                <div class="card shadow-sm">
-                                    <h5 class="card-title">{{ item.title }}</h5>
-                                    {% if item.user_id == cur_user.pk %}
-                                        <div class="row justify-content-md-center">
-                                            <a href="{% url 'edit_post' %}?id={{ item.pk }}" type="button"
-                                               class="col-5 btn btn-outline-secondary">Edit</a>
-                                            <a id="{{item.pk}}"  type="button" class="del col-5 btn btn-outline-secondary">Delete</a>
-                                        </div>
-                                    {% endif %}
-                                    <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
-                                         height="225"
-                                         xmlns="http://www.w3.org/2000/svg" role="img"
-                                         aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
-                                         focusable="false">
-
-
-                                    <div class="card-body">
-                                        <h6 class="card-subtitle mb-2 text-muted">{{ item.user }}</h6>
-                                        <p class="card-text">{{ item.content }}</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="btn-group">
-                                                <button id="{{ item.pk }}" type="button"
-                                                        class="view_modal btn btn-sm btn-outline-secondary">
-                                                    View
-                                                </button>
-                                                {% is_liked_by_this_user item cur_user likes as is_liked %}
-                                                {% if is_liked %}
-                                                    <button id="{{ item.pk }}" type="button"
-                                                            class="like btn btn-sm btn-dark">
-                                                        Like
-                                                    </button>
-                                                {% else %}
-                                                    <button id="{{ item.pk }}" type="button"
-                                                            class="like btn btn-sm btn-outline-secondary">
-                                                        Like
-                                                    </button>
-                                                {% endif %}
+                                <div class="col">
+                                    <div class="card shadow-sm">
+                                        <h5 class="card-title">{{ item.title }}</h5>
+                                        {% if item.user_id == cur_user.pk %}
+                                            <div class="row justify-content-md-center">
+                                                <a href="{% url 'edit_post' %}?id={{ item.pk }}" type="button"
+                                                   class="col-5 btn btn-outline-secondary">Edit</a>
+                                                <a id="{{ item.pk }}" type="button"
+                                                   class="delete_modal col-5 btn btn-outline-secondary">Delete</a>
                                             </div>
-                                            <a id="likes_count{{ item.pk }} " class="fw-bold text-reset">{{ item.likes__count }}</a>
-                                            <small class="text-muted">{{ item.created_at }}</small>
+                                        {% endif %}
+                                        <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top"
+                                             width="100%"
+                                             height="225"
+                                             xmlns="http://www.w3.org/2000/svg" role="img"
+                                             aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
+                                             focusable="false">
+
+
+                                        <div class="card-body">
+                                            <a href="{{ item.user.userprofile.get_absolute_url }}" class="card-subtitle mb-2 text-muted">@{{ item.user }}</a>
+                                            <p class="card card-text">{{ item.content }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="btn-group">
+                                                    <button id="{{ item.pk }}" type="button"
+                                                            class="view_modal btn btn-sm btn-outline-secondary">
+                                                        View
+                                                    </button>
+                                                    {% is_liked_by_this_user item cur_user likes as is_liked %}
+                                                    {% if is_liked %}
+                                                        <button id="{{ item.pk }}" type="button"
+                                                                class="like btn btn-sm btn-dark">
+                                                            Like
+                                                        </button>
+                                                    {% else %}
+                                                        <button id="{{ item.pk }}" type="button"
+                                                                class="like btn btn-sm btn-outline-secondary">
+                                                            Like
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                                <a id="likes_count{{ item.pk }}"
+                                                   class="fw-bold text-reset">{{ item.likes__count }}</a>
+                                                <small class="text-muted">{{ item.created_at }}</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                        </div>
-                    {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="modal fade " id="modal" tabindex="-1">
-
-        </div>
-
-    </main>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript">
-        $('.switch').click(function () {
-            $('.switch').attr('class', "switch btn btn-light btn-lg")
-            $(this).attr("class", "switch btn btn-secondary btn-lg");
-            $('#arrow_hf').remove()
-            $(this).after('<p id="arrow_hf"><img src="{% static 'img/arrow-down.svg' %}"></p>')
-            var post_id;
-            $.ajax(
-                {
-                    type: "GET",
-                    url: "{% url 'switch_data' %}",
-                    data: {
-                        post_id: $(this).attr('id')
-
-                    },
-                    success: function (data) {
-                        $('#container').html(data)
+            <div class="modal fade " id="modal" tabindex="-1">
+            </div>
+            <div class="modal" id="modal_confirm" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm deleting</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure to delete this post?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="del confirm_but btn btn-primary" data-bs-dismiss="modal">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
-                    }
-                })
-        });
-    </script>
-    <script src="{% static 'js/delete_posts.js' %}"></script>
-    <script src="{% static 'js/like_processing.js' %}"></script>
-    <script src="{% static 'js/view_modal.js' %}"></script>
+        </main>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+        <script type="text/javascript">
+            $('.switch').click(function () {
+                $('.switch').attr('class', "switch btn btn-light btn-lg")
+                $(this).attr("class", "switch btn btn-secondary btn-lg");
+                $('#arrow_hf').remove()
+                $(this).after('<p id="arrow_hf"><img src="{% static 'img/arrow-down.svg' %}"></p>')
+                var post_id;
+                $.ajax(
+                    {
+                        type: "GET",
+                        url: "{% url 'switch_data' %}",
+                        data: {
+                            post_id: $(this).attr('id')
+
+                        },
+                        success: function (data) {
+                            $('#container').html(data)
+
+
+                        }
+                    })
+            });
+        </script>
+        <script src="{% static 'js/delete_posts.js' %}"></script>
+        <script src="{% static 'js/like_processing.js' %}"></script>
+        <script src="{% static 'js/view_modal.js' %}"></script>
+         <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     {% endwith %}
 {% endblock %}
 

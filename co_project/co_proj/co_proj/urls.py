@@ -20,7 +20,6 @@ from django.urls import path, include
 from co_proj import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', include('photo_hosting.urls'))
 ]
 

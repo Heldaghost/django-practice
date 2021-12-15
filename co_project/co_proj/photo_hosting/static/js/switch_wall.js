@@ -10,7 +10,7 @@ $('.switch_wall').click(function () {
             success: function (data) {
 
                 $('#container').html(data)
-
+                 $('#pagin').html('')
             }
         })
 });

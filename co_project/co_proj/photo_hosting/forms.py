@@ -41,8 +41,9 @@ class EditPostForm(forms.ModelForm):
         if EditPostForm.post_id:
             post = Posts.objects.get(pk=EditPostForm.post_id)
             self.fields['collection'].queryset = Collections.objects.filter(
-                user_id=Posts.objects.get(pk=EditPostForm.post_id).user_id)
+                user_id=Posts.objects.get(pk=EditPostForm.post_id).user.userprofile.pk)
             self.fields['collection'].empty_label = 'None'
+            self.fields['collection'].initial = post.collection
             self.fields['title'].initial = post.title
             self.fields['content'].initial = post.content
             self.fields['photo'].initial = post.photo
@@ -134,7 +135,7 @@ class PostsForm(forms.ModelForm):
 
     def __init__(self, user_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['collection'].queryset = Collections.objects.filter(user_id=user_id)
+        self.fields['collection'].queryset = Collections.objects.filter(user_id=UserProfile.objects.get(user_id=user_id))
         self.fields['collection'].empty_label = 'None'
 
     class Meta:

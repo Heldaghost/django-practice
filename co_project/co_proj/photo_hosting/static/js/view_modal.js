@@ -19,3 +19,4 @@ $('.view_modal').click(function () {
         })
 })
 ;
+

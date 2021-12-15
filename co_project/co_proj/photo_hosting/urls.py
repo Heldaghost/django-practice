@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path
 
 from photo_hosting.views import *
@@ -20,5 +21,7 @@ urlpatterns = [
     path('search/', search, name='search'),
     path('edit_collection/', edit_collection, name='edit_collection'),
     path('delete_cols/', delete_col, name='delete_cols'),
+    path('admin/', admin.site.urls, name='admin'),
+    path('like_col/', like_col, name='like_col')
 
 ]

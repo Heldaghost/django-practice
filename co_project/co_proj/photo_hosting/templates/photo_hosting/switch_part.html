@@ -1,25 +1,111 @@
 {% load static %}
-{% with  cur_user=user %}
-{% if post_id == 'cols' %}
+{% load like_col_helper %}
+{% with is_auth=request.user.is_authenticated cur_user=user %}
     {% load like_helper %}
-     {% if col_name != '' and not col_name and col_name != None %}
-        <h1>Search for {{ col_name }} in collections</h1>
-    {% endif %}
-    {% for item in data %}
-        <div class="container col">
+    {% if post_id == 'cols' %}
+
+        {% if col_name %}
+            <h1>Search for {{ col_name }} in collections</h1>
+        {% endif %}
+        {% for item in data %}
+            <div class="container col">
 
 
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <h3 class="card-title">{{ item.title }}</h3>
+                        {% if item.user_id.user.pk == cur_user.pk and not col_name %}
+                            <div class="row justify-content-md-center">
+                                <a href="{% url 'edit_collection' %}?id={{ item.pk }}" type="button"
+                                   class="col-5 btn btn-outline-secondary">Edit</a>
+                                <a id="{{ item.pk }}" type="button"
+                                   class="delete_modal col-5 btn btn-outline-secondary">Delete</a>
+                            </div>
+                             {% else %}
+                            <div class="row justify-content-md-center">
+                            {% is_col_liked_by_this_user item cur_user likes_col as is_col_liked %}
+                                                    {% if is_col_liked %}
+                                <a id="{{item.pk}}"  type="button"
+                                   class="col_fav col-5 btn btn-dark">Favourite</a>
+                                                        {% else %}
+                                                        <a id="{{item.pk}}"  type="button"
+                                   class="col_fav col-5 btn btn-outline-secondary">Favourite</a>
+                                                        {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <img src="{{ item.avatar.url }}" class="bd-placeholder-img card-img-top" width="100%"
+                             height="225"
+                             xmlns="http://www.w3.org/2000/svg" role="img"
+                             aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
+                             focusable="false">
+
+
+                        <div class="card-body">
+                            <a href="{{ item.user.userprofile.get_absolute_url }}"
+                               class="card-subtitle mb-2 text-muted">@{{ item.user_id }}</a>
+                            <p class="card card-text">{{ item.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <button type="button" id="{{ item.pk }}"
+                                            class="switch btn  btn-outline-secondary">
+                                        View posts
+                                    </button>
+
+                                </div>
+                                <div class="card-text">Posts: {{ item.posts__count }} </div>
+                                <small class="text-muted">{{ item.created_at }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+        <div class="modal" id="modal_confirm" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm deleting</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure to delete this post?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="del_col confirm_but btn btn-primary" data-bs-dismiss="modal">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {% if post_id == 'col' %}
+            <div>
+                <h1>Posts for {{ col_name }} collection</h1>
+            </div>
+        {% endif %}
+        {% if post_id == 'posts' and col_name %}
+            <h1>Search for {{ col_name }} in posts</h1>
+        {% endif %}
+        {% for item in data %}
             <div class="col">
                 <div class="card shadow-sm">
-                    <h3 class="card-title">{{ item.title }}</h3>
-                    {% if item.user_id.pk == cur_user.pk %}
-                        <div class="row justify-content-md-center">
-                            <a href="{% url 'edit_collection' %}?id={{ item.pk }}" type="button"
-                               class="col-5 btn btn-outline-secondary">Edit</a>
-                            <a id="{{ item.pk }}" type="button" class="del_col col-5 btn btn-outline-secondary">Delete</a>
-                        </div>
+                    <h5 class="card-title">{{ item.title }}</h5>
+                    {% if post_id == 'posts' %}
+                        {% if item.user_id == cur_user.pk and not col_name %}
+                            <div class="row justify-content-md-center">
+                                <a href="{% url 'edit_post' %}?id={{ item.pk }}" type="button"
+                                   class="col-5 btn btn-outline-secondary">Edit</a>
+                                <a id="{{ item.pk }}" type="button"
+                                   class="delete_modal col-5 btn btn-outline-secondary">Delete</a>
+                            </div>
+                        {% endif %}
                     {% endif %}
-                    <img src="{{ item.avatar.url }}" class="bd-placeholder-img card-img-top" width="100%"
+                    <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
                          height="225"
                          xmlns="http://www.w3.org/2000/svg" role="img"
                          aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
@@ -27,89 +113,78 @@
 
 
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">{{ item.user_id }}</h6>
-                        <p class="card-text">{{ item.description }}</p>
+                        <a href="{{ item.user.userprofile.get_absolute_url }}"
+                           class="card-subtitle mb-2 text-muted">@{{ item.user }}</a>
+                        <p class="card-text">{{ item.content }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
-                                <button type="button" id="{{ item.pk }}"
-                                        class="switch btn btn-sm btn-outline-secondary">
-                                    View
-                                </button>
+                                {% if is_auth %}
+                                    <button type="button" id="{{ item.pk }}"
+                                            class="view_modal btn btn-sm btn-outline-secondary"
+                                            data-bs-toggle="modal">
+                                        View
+                                    </button>
+                                    {% is_liked_by_this_user item cur_user likes as is_liked %}
+                                    {% if is_liked %}
+                                        <button id="{{ item.pk }}" type="button"
+                                                class="like btn btn-sm btn-dark">
+                                            Like
+                                        </button>
+                                    {% else %}
+                                        <button id="{{ item.pk }}" type="button"
+                                                class="like btn btn-sm btn-outline-secondary">
+                                            Like
+                                        </button>
+                                    {% endif %}
+                                    </div>
 
-                            </div>
-                            <small class="text-muted">{{ item.created_at }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    {% endfor %}
-{% else  %}
-    {% if post_id == 'col' %}
-        <div>
-        <h1>Posts for {{ col_name }} collection</h1>
-        <a id="cols" class="switch btn btn-light btn-lg"><img src="{% static 'img/arrow-left-square-fill.svg' %}" ></a>
-        </div>
-    {% endif %}
-    {% if post_id == 'posts' and col_name != '' and not col_name and col_name != None %}
-        <h1>Search for {{ col_name }} in posts</h1>
-    {% endif %}
-    {% for item in data %}
-        <div class="col">
-            <div class="card shadow-sm">
-                <h5 class="card-title">{{ item.title }}</h5>
-                {% if post_id == 'posts' %}
-                    {% if item.user_id == cur_user.pk and not col_name %}
-                        <div class="row justify-content-md-center">
-                            <a href="{% url 'edit_post' %}?id={{ item.pk }}" type="button"
-                               class="col-5 btn btn-outline-secondary">Edit</a>
-                            <a id="{{ item.pk }}" type="button" class="del_col col-5 btn btn-outline-secondary">Delete</a>
-                        </div>
-                    {% endif %}
-                {% endif %}
-                <img src="{{ item.photo.url }}" class="bd-placeholder-img card-img-top" width="100%"
-                     height="225"
-                     xmlns="http://www.w3.org/2000/svg" role="img"
-                     aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
-                     focusable="false">
+                                    <a id="likes_count{{ item.pk }}"
+                                       class="fw-bold text-reset">{{ item.likes__count }}</a>
 
 
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">{{ item.user }}</h6>
-                    <p class="card-text">{{ item.content }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <button type="button" id="{{ item.pk }}"
-                                    class="view_modal btn btn-sm btn-outline-secondary">
-                                View
-                            </button>
-                            {% is_liked_by_this_user item cur_user likes as is_liked %}
-                            {% if is_liked %}
-                                <button id="{{ item.pk }}" type="button"
-                                        class="like btn btn-sm btn-dark">
-                                    Like
-                                </button>
-                            {% else %}
-                                <button id="{{ item.pk }}" type="button"
-                                        class="like btn btn-sm btn-outline-secondary">
-                                    Like
-                                </button>
-                            {% endif %}
-                        </div>
-                        <a id="likes_count{{ item.pk }}" class="fw-bold text-reset">{{ item.likes_set.count }}</a>
+                                {% else %}
+                                    </div>
+
+                                    <a id="likes_count{{ item.pk }}">Likes: {{ item.likes__count }}</a>
+
+                                {% endif %}
+
+
                         <small class="text-muted">{{ item.created_at }}</small>
                     </div>
                 </div>
             </div>
+            </div>
+            </div>
+        {% endfor %}
+        <div class="modal" id="modal_confirm" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm deleting</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure to delete this post?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="del confirm_but btn btn-primary" data-bs-dismiss="modal">Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% endfor %}
-{% endif %}
+    {% endif %}
+
 {% endwith %}
 
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script src="{% static 'js/delete_posts.js' %}"></script>
 <script src="{% static 'js/switch_data.js' %}"></script>
 <script src="{% static 'js/like_processing.js' %}"></script>
+<script src="{% static 'js/like_col.js' %}"></script>
 <script src="{% static 'js/view_modal.js' %}"></script>
-<script src="{% static 'js/delete_cols.js' %}"></script>

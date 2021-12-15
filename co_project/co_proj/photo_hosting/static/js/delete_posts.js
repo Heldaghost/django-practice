@@ -29,3 +29,13 @@ $('.del_col').click(function () {
             }
         })
 });
+
+
+$('.delete_modal').click(function () {
+    myModal = new bootstrap.Modal(document.getElementById('modal_confirm'), {
+        keyboard: false
+    })
+    $('.confirm_but').attr('id', $(this).attr('id'))
+    myModal.show()
+})
+;
